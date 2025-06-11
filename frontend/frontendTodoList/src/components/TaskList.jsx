@@ -11,6 +11,8 @@ function TaskList() {
   const [loading, setLoading] = useState(true); // State for loading indicator
   const [error, setError] = useState(null); // State for error handling
 
+const [editTask, setEditTask] = useState(null)
+
   // Function to fetch tasks from the backend
   const fetchTasks = useCallback(async () => {
     setLoading(true);
@@ -43,6 +45,7 @@ function TaskList() {
   // Function to close the Add Task modal
   const handleCloseAddTaskModal = () => {
     setShowAddTaskModal(false);
+    setEditTask(null);
   };
 
   // Function to handle adding a new task (makes API call and then refetches tasks)
@@ -69,6 +72,44 @@ function TaskList() {
       setError('Failed to add task. Please check your input.'); // Set specific error for add
     }
   };
+
+  const handleDeleteTask = async (taskId) => {
+  try {
+    const response = await fetch(`http://localhost:5000/api/task/${taskId}`, {
+      method: 'DELETE',
+    });
+
+    if (response.ok) {
+      // Refetch tasks or remove the deleted one from state
+      fetchTasks(); // Assuming you have this function
+    } else {
+      console.error('Delete failed');
+    }
+  } catch (error) {
+    console.error('Error deleting task:', error);
+  }
+   };
+
+   const handleUpdateTask = async (updatedTaskData) => {
+  try {
+    const response = await fetch(`http://localhost:5000/api/task/${editTask._id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedTaskData),
+    });
+
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+    console.log('Task updated successfully.');
+    handleCloseAddTaskModal();
+    fetchTasks(); // Refresh task list
+  } catch (err) {
+    console.error('Error updating task:', err);
+    setError('Failed to update task. Please try again.');
+  }
+  };
+
+
 
   return (
     <div className="slds-scope">
@@ -102,7 +143,7 @@ function TaskList() {
 
       {/* Search Bar */}
       <div className="slds-grid slds-wrap slds-m-around_medium">
-        <TaskSearch />
+        {/* <TaskSearch /> */}
       </div>
 
       {/* Loading/Error Indicators */}
@@ -112,15 +153,24 @@ function TaskList() {
       {/* Task Table and Pagination - Only show if not loading and no critical error */}
       {!loading && !error && (
         <div className="slds-box slds-m-around_medium">
-          <TaskTable tasks={tasks} /> {/* Pass fetched tasks to TaskTable */}
-          <Pagination totalRecords={tasks.length} /> {/* Pass actual total records */}
+<TaskTable tasks={tasks} onDelete={handleDeleteTask} onEdit={(task) => {
+  setEditTask(task);
+  setShowAddTaskModal(true);
+}} />{/* Pass fetched tasks to TaskTable */}
+      
+          {/* <Pagination totalRecords={tasks.length} /> Pass actual total records    */}
+
+
         </div>
       )}
 
       {/* New Task Modal */}
       <Modal show={showAddTaskModal} title="New Task" onClose={handleCloseAddTaskModal}>
-        <TaskForm onClose={handleCloseAddTaskModal} onSave={handleAddTask} />
-      </Modal>
+<TaskForm
+  onClose={handleCloseAddTaskModal}
+  onSave={editTask ? handleUpdateTask : handleAddTask}
+  initialValues={editTask || {}}
+/>      </Modal>
     </div>
   );
 }

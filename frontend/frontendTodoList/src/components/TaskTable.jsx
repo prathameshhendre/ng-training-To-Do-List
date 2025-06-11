@@ -1,6 +1,6 @@
 import React from 'react';
 
-function TaskTable({ tasks }) { // Receives tasks as a prop
+function TaskTable({ tasks , onDelete, onEdit }) { // Receives tasks as a prop
   return (
     <table className="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped">
       <thead>
@@ -25,20 +25,23 @@ function TaskTable({ tasks }) { // Receives tasks as a prop
           </th>
         </tr>
       </thead>
-      <tbody>
-        {/* Check if tasks array is not empty before mapping */}
+       <tbody>
         {tasks && tasks.length > 0 ? (
           tasks.map(task => (
-            <tr key={task._id}> {/* Use task._id from MongoDB as key */}
-              <td data-label="Assigned To">{task.assignedTo}</td>
-              <td data-label="Status">{task.status}</td>
-              {/* Format date for display if it exists */}
-              <td data-label="Due Date">{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'N/A'}</td>
-              <td data-label="Priority">{task.priority}</td>
-              <td data-label="Comments">{task.description || 'No comments'}</td> {/* Use description field */}
+            <tr key={task._id}>
+              <td>{task.assignedTo}</td>
+              <td>{task.status}</td>
+              <td>{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'N/A'}</td>
+              <td>{task.priority}</td>
+              <td>{task.description || 'No comments'}</td>
               <td>
-                <button className="slds-button slds-button_neutral slds-m-right_x-small">Edit</button>
-                <button className="slds-button slds-button_destructive">Delete</button>
+                <button className="slds-button slds-button_neutral slds-m-right_x-small" onClick={() => onEdit(task)} >Edit</button>
+                <button
+                  className="slds-button slds-button_destructive"
+                  onClick={() => onDelete(task._id)}
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           ))

@@ -49,9 +49,37 @@ const getTasks = async (req, res) => {
   }
 };
 
-// Export all controller functions
+// DELETE /api/task/:id
+const deleteTask = async (req, res) => {
+  try {
+    const taskId = req.params.id;
+
+    const deletedTask = await Task.findByIdAndDelete(taskId);
+
+    if (!deletedTask) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+
+    res.status(200).json({ message: 'Task deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error while deleting task', error: err.message });
+  }
+};
+
+
+const updateTask = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedTask = await Task.findByIdAndUpdate(id, req.body, { new: true });
+    res.json(updatedTask);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating task', error: error.message });
+  }
+};
+
 module.exports = {
   createTask,
   getTasks,
-  // Other CRUD functions will be added here later
+  deleteTask,
+  updateTask
 };
