@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors'); // Import cors middleware
 const chai = require('chai');
-const chaiHttp = require('chai-http');
+
 
 
 // Load environment variables from .env file

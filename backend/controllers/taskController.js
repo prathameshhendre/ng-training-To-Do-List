@@ -49,10 +49,11 @@ const getTasks = async (req, res) => {
   }
 };
 
-// DELETE /api/task/:id
 const deleteTask = async (req, res) => {
   try {
     const taskId = req.params.id;
+
+    console.log("Deleting task with ID:", taskId);
 
     const deletedTask = await Task.findByIdAndDelete(taskId);
 
@@ -62,9 +63,11 @@ const deleteTask = async (req, res) => {
 
     res.status(200).json({ message: 'Task deleted successfully' });
   } catch (err) {
+    console.error('Error deleting task:', err);
     res.status(500).json({ message: 'Server error while deleting task', error: err.message });
   }
 };
+
 
 
 const updateTask = async (req, res) => {
